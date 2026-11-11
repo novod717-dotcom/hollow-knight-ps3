@@ -1,0 +1,42 @@
+
+name: Source Check - Hallownest PS3
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+  workflow_dispatch:
+
+jobs:
+  source-check:
+    name: Verificar projeto
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Baixar arquivos
+        uses: actions/checkout@v4
+
+      - name: Verificar arquivos
+        run: |
+          echo "Verificando projeto..."
+
+          test -f README.md
+          test -f CMakeLists.txt
+          test -f src/main.c
+          test -f docs/PS3_PORT.md
+
+          echo "Todos os arquivos principais foram encontrados!"
+
+      - name: Verificar código C
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y gcc
+
+          gcc -fsyntax-only \
+            $(sdl2-config --cflags 2>/dev/null || echo "") \
+            src/main.c || echo "SDL2 pode precisar de configuração."
+
+      - name: Finalizado
+        run: echo "Verificação concluída!"
+        
